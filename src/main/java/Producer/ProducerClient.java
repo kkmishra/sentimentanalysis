@@ -1,5 +1,6 @@
 package Producer;
 
+import Common.TwitterUtils;
 import Serdes.TweetStatusSerializer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -8,7 +9,9 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.LongSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import twitter4j.*;
+import twitter4j.QueryResult;
+import twitter4j.Status;
+import twitter4j.TwitterException;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -21,10 +24,9 @@ public class ProducerClient {
 
   public static void publish(int number) throws InterruptedException, TwitterException {
     KafkaProducer<Long, Status> producer = createProducer();
-    Twitter twitter = TwitterFactory.getSingleton();
-    Query query = new Query(QUERY);
-    QueryResult search = twitter.search(query);
-    for (Status status : search.getTweets()) {
+    TwitterUtils twitterUtils = TwitterUtils.getInstance();
+    QueryResult queryResult = twitterUtils.executeQuery(QUERY);
+    for (Status status : queryResult.getTweets()) {
       ProducerRecord<Long, Status> record = new ProducerRecord<Long, Status>(TOPIC, status.getId(), status);
       try {
         RecordMetadata metadata = producer.send(record).get();
@@ -39,6 +41,7 @@ public class ProducerClient {
     }
     producer.close();
   }
+
 
   private static KafkaProducer<Long, Status> createProducer() {
     Properties properties = new Properties();

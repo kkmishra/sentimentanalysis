@@ -11,6 +11,11 @@ import static Common.Constants.BOOTSTRAP_SERVER;
 
 public class ConsumerClient {
 
+
+  public void consume() {
+    
+  }
+
   private KafkaConsumer<String, String> createConsumer() {
     Properties properties = new Properties();
     properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVER);
